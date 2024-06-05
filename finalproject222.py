@@ -6,7 +6,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import minimize
 
-# Define file paths and corresponding names
 file_info = {
     'DU21': '/Users/iremkeskin/Desktop/AA222/finalproject/DU21_A17.dat',
     'DU25': '/Users/iremkeskin/Desktop/AA222/finalproject/DU25_A17.dat',
@@ -16,7 +15,6 @@ file_info = {
     'NACA64': '/Users/iremkeskin/Desktop/AA222/finalproject/NACA64_A17.dat'
 }
 
-# Function to read and clean data from a file
 def read_and_clean_data(file_path, expected_columns=4):
     data = []
     with open(file_path, 'r') as file:
@@ -32,7 +30,7 @@ def read_and_clean_data(file_path, expected_columns=4):
                     data.append(columns)
     return np.array(data)
 
-# Objective function to minimize (drag to lift ratio)
+
 def objective_function(alpha, alpha_range, Cl, Cd):
     drag_to_lift = np.interp(alpha, alpha_range, Cd / Cl)
     return drag_to_lift
@@ -41,7 +39,6 @@ def objective_function(alpha, alpha_range, Cl, Cd):
 cleaned_data = {}
 optimal_data = []
 
-# Read, clean, and process each file
 for name, file_path in file_info.items():
     try:
         # Read and clean the data
@@ -52,7 +49,6 @@ for name, file_path in file_info.items():
             print(f"Error: No valid data in file {file_path}")
             continue
         
-        # Store the cleaned data in the dictionary
         cleaned_data[name] = data
         
         # Extract columns for plotting
@@ -60,10 +56,7 @@ for name, file_path in file_info.items():
         col2 = np.array([row[1] for row in data])
         col3 = np.array([row[2] for row in data])
         
-        # Create a new column for (Column 3 / Column 2)
         col_ratio = np.divide(col3, col2, out=np.zeros_like(col3), where=col2 != 0)
-        
-        # Add the new column to the data
         data = np.column_stack((data, col_ratio))
         
         # Perform Powell's method to find optimal alpha
@@ -75,10 +68,7 @@ for name, file_path in file_info.items():
         optimal_Cl = np.interp(optimal_alpha, col1, col2)
         optimal_Cd = np.interp(optimal_alpha, col1, col3)
         
-        # Store the optimal values in the optimal_data list
         optimal_data.append([optimal_alpha, optimal_Cl, optimal_Cd])
-        
-        # Print the optimal alpha
         print(f'Optimal alpha for {name}: {optimal_alpha}')
         
         # Plot Column 2 and Column 3 vs Column 1
@@ -100,11 +90,9 @@ for name, file_path in file_info.items():
     except Exception as e:
         print(f"Error: An unexpected error occurred: {e}")
 
-# Save the optimal data to a new CSV file
 optimal_data = np.array(optimal_data)
 np.savetxt('/Users/iremkeskin/Desktop/AA222/finalproject/optimal_data.csv', optimal_data, delimiter=',', header='Optimal Alpha,Cl,Cd', comments='')
 
-# Print the optimal data
 print("Optimal data saved to 'optimal_data.csv':")
 print(optimal_data)
 
